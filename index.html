@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supportdesk — Deg</title>
+<style>
+/* ===== Deg Werkkamer — tokens ===== */
+:root{
+  --deg-paper:#FBF8EF;
+  --deg-basis:#F3EEDB;
+  --deg-zand:#E6DFC7;
+  --deg-lijn:#D8CFB5;
+  --deg-lijn-sterk:#AD9C8F;
+  --deg-inkt-zwak:#8E796E;
+  --deg-inkt-sub:#664A43;
+  --deg-inkt:#2A0402;
+  --deg-projecten:#08BDFA;
+  --deg-kennis:#62D58D;
+  --deg-trajecten:#CF7DDE;
+  --deg-academie:#EF8232;
+  --deg-werving:#D6BA38;
+  --sig-kritiek:#A8321C;
+  --sig-aandacht:#A97400;
+  --sig-goed:#2C7A55;
+  --sig-info:#0B6E8F;
+  --sig-kritiek-vlak:rgba(168,50,28,.12);
+  --sig-aandacht-vlak:rgba(169,116,0,.13);
+  --sig-goed-vlak:rgba(44,122,85,.13);
+  --sig-info-vlak:rgba(11,110,143,.12);
+  --accent:var(--deg-projecten);
+  --font:"FKT Gnarly","Poppins","Inter",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono",Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font);
+  background:var(--deg-basis);
+  color:var(--deg-inkt);
+  font-size:14px;
+  line-height:145%;
+}
+:focus-visible{outline:2px solid var(--deg-inkt);outline-offset:2px;border-radius:2px}
+
+/* ===== Schil ===== */
+.deg-topbar{
+  height:56px;background:var(--deg-inkt);color:var(--deg-basis);
+  display:flex;align-items:center;gap:16px;padding:0 22px;
+}
+.deg-topbar .logo{font-weight:900;font-size:21px;letter-spacing:.01em}
+.deg-topbar .kruimel{font-size:13px;opacity:.85;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.deg-topbar .rechts{display:flex;gap:8px;align-items:center}
+.deg-streep{height:3px;background:var(--accent)}
+.deg-tabs{
+  background:var(--deg-paper);border-bottom:1px solid var(--deg-lijn);
+  display:flex;gap:2px;padding:0 22px;overflow-x:auto;
+}
+.deg-tabs button{
+  font-family:var(--font);font-weight:700;font-size:14px;color:var(--deg-inkt-sub);
+  background:none;border:none;border-bottom:3px solid transparent;
+  padding:12px 14px 9px;cursor:pointer;white-space:nowrap;
+}
+.deg-tabs button[aria-selected="true"]{color:var(--deg-inkt);border-bottom-color:var(--accent)}
+.deg-tabs button:hover{color:var(--deg-inkt)}
+.deg-werkblad{max-width:1240px;margin:0 auto;padding:24px 22px 60px}
+
+/* ===== Sync-status ===== */
+.sync{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;
+  color:var(--deg-basis);opacity:.9;white-space:nowrap}
+.sync .bol{width:8px;height:8px;border-radius:50%;background:var(--deg-lijn-sterk)}
+.sync[data-stand="goed"] .bol{background:var(--deg-kennis)}
+.sync[data-stand="bezig"] .bol{background:var(--deg-werving)}
+.sync[data-stand="fout"] .bol{background:#E06A50}
+@media(max-width:760px){.sync .tekst{display:none}}
+
+/* ===== Typografie ===== */
+h1{font-weight:900;font-size:28px;line-height:95%;margin-bottom:6px}
+h2{font-weight:700;font-size:20px;line-height:100%}
+h3{font-weight:700;font-size:15px;line-height:100%}
+.eyebrow{font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--deg-inkt-sub)}
+.sub{color:var(--deg-inkt-sub);font-size:13px}
+.num{font-variant-numeric:tabular-nums}
+.code{font-family:var(--mono);font-size:12.5px}
+
+/* ===== Panelen & raster ===== */
+.paneel{background:var(--deg-paper);border:1px solid var(--deg-lijn-sterk);border-radius:10px;overflow:hidden}
+.paneel>header{
+  display:flex;align-items:center;gap:10px;padding:12px 16px;
+  border-bottom:1px solid var(--deg-lijn);font-weight:700;font-size:15px;line-height:100%;
+}
+.paneel>header .acties{margin-left:auto;display:flex;gap:8px;align-items:center}
+.paneel>.inhoud{padding:16px}
+.raster{display:grid;gap:16px;margin:16px 0}
+.raster.k2{grid-template-columns:1fr 1fr}
+.raster.k3{grid-template-columns:1fr 1fr 1fr}
+.raster.k4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:860px){.raster.k2,.raster.k3,.raster.k4{grid-template-columns:1fr}}
+
+/* ===== KPI ===== */
+.paneel.kpi .inhoud{padding:14px 16px}
+.paneel.kpi .waarde{font-weight:900;font-size:40px;line-height:95%;margin:4px 0 6px}
+.paneel.kpi .duiding{font-size:13px;color:var(--deg-inkt-sub)}
+.paneel.kpi.goed .waarde{color:var(--sig-goed)}
+.paneel.kpi.aandacht .waarde{color:var(--sig-aandacht)}
+.paneel.kpi.kritiek .waarde{color:var(--sig-kritiek)}
+
+/* ===== Tabellen ===== */
+.tabelwrap{overflow-x:auto}
+table.deg{width:100%;border-collapse:collapse;background:var(--deg-paper);font-size:13.5px}
+table.deg th{
+  background:var(--deg-zand);text-align:left;font-weight:700;font-size:12px;
+  text-transform:uppercase;letter-spacing:.05em;padding:9px 12px;color:var(--deg-inkt-sub);
+  white-space:nowrap;
+}
+table.deg td{padding:8px 12px;border-bottom:1px solid var(--deg-lijn);vertical-align:middle;height:34px}
+table.deg tr:hover td{background:var(--deg-zand)}
+table.deg td.r,table.deg th.r{text-align:right}
+table.deg tr[data-status] td:first-child{border-left:3px solid transparent}
+table.deg tr[data-status="kritiek"] td:first-child{border-left-color:var(--sig-kritiek)}
+table.deg tr[data-status="aandacht"] td:first-child{border-left-color:var(--sig-aandacht)}
+table.deg tr[data-status="goed"] td:first-child{border-left-color:var(--sig-goed)}
+table.deg tbody tr{cursor:pointer}
+
+/* ===== Knoppen ===== */
+.knop{
+  font-family:var(--font);font-weight:700;font-size:13.5px;
+  background:var(--deg-inkt);color:var(--deg-basis);
+  border:1.5px solid var(--deg-inkt);border-radius:8px;
+  padding:8px 16px;cursor:pointer;
+}
+.knop:hover{background:#43201c}
+.knop.tweede{background:var(--deg-paper);color:var(--deg-inkt)}
+.knop.tweede:hover{background:var(--deg-zand)}
+.knop.stil{background:none;border-color:transparent;color:var(--deg-inkt-sub)}
+.knop.stil:hover{color:var(--deg-inkt);background:var(--deg-zand)}
+.knop.gevaar{background:var(--deg-paper);color:var(--sig-kritiek);border-color:var(--sig-kritiek)}
+.knop.gevaar:hover{background:var(--sig-kritiek-vlak)}
+.knop.klein{padding:4px 10px;font-size:12.5px}
+.knop[disabled]{opacity:.45;cursor:not-allowed}
+.deg-topbar .knop.tweede{background:transparent;color:var(--deg-basis);border-color:var(--deg-lijn-sterk)}
+.deg-topbar .knop.tweede:hover{background:rgba(251,248,239,.12)}
+
+/* ===== Formulier ===== */
+.veld{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.veld>span{font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--deg-inkt-sub)}
+.veld input,.veld select,.veld textarea{
+  font-family:var(--font);font-size:14px;color:var(--deg-inkt);
+  background:var(--deg-paper);border:1.5px solid var(--deg-lijn-sterk);
+  border-radius:8px;padding:8px 11px;width:100%;
+}
+.veld textarea{min-height:96px;resize:vertical;line-height:145%}
+.veld .hint{font-size:12.5px;color:var(--deg-inkt-zwak)}
+.veld .fout{font-size:12.5px;color:var(--sig-kritiek);display:none}
+.veld.ongeldig input,.veld.ongeldig select,.veld.ongeldig textarea{border-color:var(--sig-kritiek)}
+.veld.ongeldig .fout{display:block}
+
+/* ===== Pillen ===== */
+.pil{
+  display:inline-flex;align-items:center;gap:5px;
+  font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;
+  border-radius:99px;padding:3px 10px;white-space:nowrap;
+}
+.pil::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.pil.kritiek{color:var(--sig-kritiek);background:var(--sig-kritiek-vlak)}
+.pil.aandacht{color:var(--sig-aandacht);background:var(--sig-aandacht-vlak)}
+.pil.goed{color:var(--sig-goed);background:var(--sig-goed-vlak)}
+.pil.info{color:var(--sig-info);background:var(--sig-info-vlak)}
+.pil.neutraal{color:var(--deg-inkt-sub);background:var(--deg-zand)}
+
+/* ===== Bevinding ===== */
+.bevinding{display:flex;gap:12px;background:var(--deg-paper);border:1px solid var(--deg-lijn);border-radius:8px;padding:12px 14px;margin:10px 0}
+.bevinding .merk{width:3px;border-radius:3px;flex:none}
+.bevinding[data-status="kritiek"] .merk{background:var(--sig-kritiek)}
+.bevinding[data-status="aandacht"] .merk{background:var(--sig-aandacht)}
+.bevinding[data-status="goed"] .merk{background:var(--sig-goed)}
+.bevinding[data-status="info"] .merk{background:var(--sig-info)}
+
+/* ===== Lege staat & gelaagd vlak ===== */
+.leegstaat{
+  text-align:center;padding:56px 24px;border:1.5px dashed var(--deg-lijn-sterk);
+  border-radius:12px;color:var(--deg-inkt-sub);position:relative;
+}
+.leegstaat .gelaagd{
+  position:absolute;left:50%;top:34px;width:120px;height:120px;
+  transform:translateX(-50%) rotate(-6deg);
+  background:color-mix(in srgb,var(--accent) 30%,transparent);
+  border-radius:14px;z-index:0;
+}
+.leegstaat .ico.groot{position:relative;z-index:1;margin:44px auto 18px}
+.leegstaat h2{position:relative;z-index:1;margin-bottom:8px}
+.leegstaat p{position:relative;z-index:1;max-width:420px;margin:0 auto 18px}
+
+/* ===== Iconen ===== */
+.ico{width:20px;height:20px;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;fill:none;flex:none}
+.ico.groot{width:56px;height:56px;stroke-width:1.5;display:block}
+
+/* ===== Kanban ===== */
+.bord{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:start}
+@media(max-width:1000px){.bord{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.bord{grid-template-columns:1fr}}
+.kolom{background:var(--deg-paper);border:1px solid var(--deg-lijn-sterk);border-radius:10px;min-height:220px;display:flex;flex-direction:column}
+.kolom>header{padding:11px 14px;border-bottom:1px solid var(--deg-lijn);display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px}
+.kolom>header .aantal{margin-left:auto;font-weight:700;font-size:12px;color:var(--deg-inkt-sub);background:var(--deg-zand);border-radius:99px;padding:2px 9px}
+.kolom .kaarten{padding:10px;display:flex;flex-direction:column;gap:9px;flex:1;min-height:80px}
+.kolom.sleep-over .kaarten{background:var(--deg-zand);border-radius:0 0 10px 10px}
+.kaart{
+  background:var(--deg-basis);border:1px solid var(--deg-lijn-sterk);border-radius:8px;
+  padding:10px 12px 10px 14px;cursor:grab;position:relative;
+}
+.kaart::before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:3px;background:var(--deg-lijn-sterk)}
+.kaart[data-prio="kritiek"]::before{background:var(--sig-kritiek)}
+.kaart[data-prio="hoog"]::before{background:var(--sig-aandacht)}
+.kaart[data-prio="normaal"]::before{background:var(--sig-info)}
+.kaart:active{cursor:grabbing}
+.kaart.slepend{opacity:.45}
+.kaart .kop{display:flex;align-items:baseline;gap:8px;margin-bottom:3px}
+.kaart .kop .code{color:var(--deg-inkt-zwak)}
+.kaart .titel{font-weight:700;font-size:13.5px;line-height:130%}
+.kaart .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center;font-size:12px;color:var(--deg-inkt-sub)}
+.kaart .verplaats{display:flex;gap:4px;margin-top:8px}
+.kaart .verplaats .knop{padding:2px 8px}
+
+/* ===== Grafieken ===== */
+.grafiek svg{display:block;width:100%;height:auto}
+.grafiek text{font-family:var(--font);fill:var(--deg-inkt)}
+
+/* ===== Dialogen ===== */
+dialog{
+  border:1px solid var(--deg-lijn-sterk);border-radius:12px;background:var(--deg-paper);
+  color:var(--deg-inkt);width:min(640px,92vw);padding:0;
+}
+dialog::backdrop{background:rgba(42,4,2,.45)}
+dialog .kop{display:flex;align-items:flex-start;gap:12px;padding:16px 18px;border-bottom:1px solid var(--deg-lijn)}
+dialog .body{padding:16px 18px;max-height:62vh;overflow:auto}
+dialog .voet{padding:12px 18px;border-top:1px solid var(--deg-lijn);display:flex;gap:8px;flex-wrap:wrap}
+.detailraster{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;margin:12px 0}
+@media(max-width:640px){.detailraster{grid-template-columns:1fr}}
+.detailraster .item .eyebrow{display:block;margin-bottom:2px}
+.reactie{border-top:1px solid var(--deg-lijn);padding:10px 0}
+.reactie .wie{font-weight:700;font-size:12.5px}
+.reactie .wanneer{color:var(--deg-inkt-zwak);font-size:12px;margin-left:6px}
+
+/* ===== Aanmeldscherm ===== */
+dialog.aanmelden{width:min(480px,94vw)}
+dialog.aanmelden .kop h2{margin-top:2px}
+.klapper summary{cursor:pointer;font-weight:700;font-size:12.5px;color:var(--deg-inkt-sub);margin:8px 0}
+.klapper[open] summary{margin-bottom:12px}
+
+/* ===== Melding ===== */
+#melding{
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%);
+  background:var(--deg-inkt);color:var(--deg-basis);font-weight:700;font-size:13.5px;
+  border-radius:99px;padding:9px 20px;opacity:0;pointer-events:none;
+  transition:opacity .25s;z-index:99;max-width:90vw;text-align:center;
+}
+#melding.zichtbaar{opacity:1}
+@media(prefers-reduced-motion:reduce){#melding{transition:none}html{scroll-behavior:auto}}
+
+/* ===== Filterbalk ===== */
+.filterbalk{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:16px}
+.filterbalk .veld{margin:0;min-width:150px}
+.filterbalk input[type="search"]{min-width:220px}
+
+/* ===== Print ===== */
+@media print{
+  .geen-print,.deg-tabs,.kaart .verplaats,dialog{display:none!important}
+  body{background:#fff}
+  .deg-topbar{background:#fff;color:var(--deg-inkt);border-bottom:2px solid var(--deg-inkt)}
+  .deg-topbar .rechts{display:none}
+  .deg-werkblad{max-width:none;padding:10px 0}
+  .paneel,.kolom,.kaart{break-inside:avoid;border-color:var(--deg-inkt-zwak)}
+  table.deg th{background:#eee}
+  thead{display:table-header-group}
+  section[hidden]{display:none!important}
+}
+</style>
+</head>
+<body data-thema="projecten">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="ico-stoel" viewBox="0 0 24 24"><path d="M7 4v8M7 12h10M17 6v6M5 12v8M19 12v8M7 16h10"/></symbol>
+    <symbol id="ico-klok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+    <symbol id="ico-kussen" viewBox="0 0 24 24"><path d="M4.5 7c5-2.5 10-2.5 15 0v10c-5 2.5-10 2.5-15 0zM4.5 7l3 5-3 5M19.5 7l-3 5 3 5"/></symbol>
+    <symbol id="ico-lamp" viewBox="0 0 24 24"><path d="M12 3.5a5.5 5.5 0 0 1 3 10.1V16H9v-2.4A5.5 5.5 0 0 1 12 3.5zM9.8 19h4.4M11 21.5h2"/></symbol>
+    <symbol id="ico-tafel" viewBox="0 0 24 24"><path d="M3.5 8h17M5 8v11M19 8v11M5 13h14"/></symbol>
+  </defs>
+</svg>
+
+<header class="deg-topbar">
+  <span class="logo">DEG.</span>
+  <span class="kruimel" id="kruimel">Supportdesk / Deg intern / v2.0</span>
+  <span class="rechts">
+    <span class="sync" id="sync" data-stand=""><span class="bol"></span><span class="tekst" id="syncTekst">nog niet verbonden</span></span>
+    <button class="knop tweede klein geen-print" id="btnVerversen" type="button">Verversen</button>
+    <button class="knop tweede klein geen-print" id="btnMenu" type="button" aria-label="Menu">⋯</button>
+  </span>
+</header>
+<div class="deg-streep"></div>
+
+<nav class="deg-tabs geen-print" role="tablist" aria-label="Onderdelen">
+  <button role="tab" aria-selected="true" data-tab="bord" id="tab-bord">Bord</button>
+  <button role="tab" aria-selected="false" data-tab="tickets" id="tab-tickets">Tickets</button>
+  <button role="tab" aria-selected="false" data-tab="nieuw" id="tab-nieuw">Nieuw ticket</button>
+  <button role="tab" aria-selected="false" data-tab="dashboard" id="tab-dashboard">Dashboard</button>
+  <button role="tab" aria-selected="false" data-tab="beheer" id="tab-beheer">Beheer</button>
+</nav>
+
+<main class="deg-werkblad">
+
+  <!-- ============ BORD ============ -->
+  <section id="scherm-bord" role="tabpanel" aria-labelledby="tab-bord">
+    <div id="bordLeeg" class="leegstaat" hidden>
+      <div class="gelaagd"></div>
+      <svg class="ico groot"><use href="#ico-stoel"/></svg>
+      <h2>De stoel staat klaar</h2>
+      <p>Nog geen tickets in de desk. Maak het eerste ticket aan — het staat direct voor het hele team klaar.</p>
+      <button class="knop" id="btnEersteTicket" type="button">Eerste ticket aanmaken</button>
+    </div>
+    <div class="bord" id="bord"></div>
+  </section>
+
+  <!-- ============ TICKETS ============ -->
+  <section id="scherm-tickets" role="tabpanel" aria-labelledby="tab-tickets" hidden>
+    <div class="filterbalk geen-print">
+      <label class="veld"><span>Zoeken</span>
+        <input type="search" id="fZoek" placeholder="Titel, ID, melder…"></label>
+      <label class="veld"><span>Status</span>
+        <select id="fStatus"><option value="">Alle</option></select></label>
+      <label class="veld"><span>Prioriteit</span>
+        <select id="fPrio"><option value="">Alle</option></select></label>
+      <label class="veld"><span>Categorie</span>
+        <select id="fCat"><option value="">Alle</option></select></label>
+      <button class="knop stil" id="fWis" type="button">Filters wissen</button>
+    </div>
+    <div class="paneel">
+      <header><svg class="ico"><use href="#ico-tafel"/></svg> Alle tickets <span class="acties sub" id="telling"></span></header>
+      <div class="tabelwrap">
+        <table class="deg" id="tabel">
+          <thead><tr>
+            <th>ID</th><th>Titel</th><th>Categorie</th><th>Prioriteit</th><th>Status</th>
+            <th>Melder</th><th>Behandelaar</th><th class="r">Leeftijd</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ NIEUW TICKET ============ -->
+  <section id="scherm-nieuw" role="tabpanel" aria-labelledby="tab-nieuw" hidden>
+    <div class="raster k2">
+      <div class="paneel">
+        <header><svg class="ico"><use href="#ico-lamp"/></svg> Nieuw ticket</header>
+        <div class="inhoud">
+          <label class="veld" id="vTitel"><span>Titel</span>
+            <input type="text" id="inTitel" maxlength="120" placeholder="Korte omschrijving van de melding">
+            <span class="fout">Geef een titel op — zonder titel is het ticket niet vindbaar.</span></label>
+          <label class="veld"><span>Omschrijving</span>
+            <textarea id="inOmschrijving" placeholder="Wat gebeurt er, wat verwachtte je, en wat heb je al geprobeerd?"></textarea>
+            <span class="hint">Hoe concreter, hoe sneller de behandelaar kan schakelen.</span></label>
+          <div class="raster k2" style="margin:0">
+            <label class="veld"><span>Categorie</span>
+              <select id="inCategorie"></select></label>
+            <label class="veld"><span>Type</span>
+              <select id="inType"></select></label>
+            <label class="veld"><span>Prioriteit</span>
+              <select id="inPrio"></select></label>
+            <label class="veld"><span>Behandelaar</span>
+              <select id="inBehandelaar"></select></label>
+          </div>
+          <button class="knop" id="btnAanmaken" type="button">Ticket aanmaken</button>
+        </div>
+      </div>
+      <div>
+        <div class="bevinding" data-status="info"><div class="merk"></div>
+          <div><strong>Prioriteit kiezen?</strong><br>
+          <span class="sub">Kritiek = een tool of proces ligt stil. Hoog = werk loopt vertraging op. Normaal = hinderlijk maar er is een omweg. Laag = wens of cosmetisch.</span></div></div>
+        <div class="bevinding" data-status="goed"><div class="merk"></div>
+          <div><strong>Direct gedeeld met het team.</strong><br>
+          <span class="sub">Je ticket wordt opgeslagen in het gezamenlijke databestand. Iedereen die de desk opent ziet dezelfde stand — de melder ben jij, onder de naam waarmee je bent aangemeld.</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DASHBOARD ============ -->
+  <section id="scherm-dashboard" role="tabpanel" aria-labelledby="tab-dashboard" hidden>
+    <div class="raster k4" id="kpis"></div>
+    <div class="raster k2">
+      <div class="paneel"><header><svg class="ico"><use href="#ico-tafel"/></svg> Open tickets per categorie</header>
+        <div class="inhoud grafiek" id="grafCategorie"></div></div>
+      <div class="paneel"><header><svg class="ico"><use href="#ico-kussen"/></svg> Open tickets per prioriteit</header>
+        <div class="inhoud grafiek" id="grafPrio"></div></div>
+    </div>
+    <div class="paneel"><header><svg class="ico"><use href="#ico-klok"/></svg> Aangemaakt en opgelost per week <span class="acties sub">laatste 8 weken</span></header>
+      <div class="inhoud grafiek" id="grafWeken"></div></div>
+    <div id="dashBevindingen" style="margin-top:16px"></div>
+  </section>
+
+  <!-- ============ BEHEER ============ -->
+  <section id="scherm-beheer" role="tabpanel" aria-labelledby="tab-beheer" hidden>
+    <div class="raster k2">
+      <div class="paneel">
+        <header><svg class="ico"><use href="#ico-tafel"/></svg> Data</header>
+        <div class="inhoud">
+          <p style="margin-bottom:12px">Alle tickets staan in één databestand (<span class="code" id="beheerPad">data/tickets.json</span>) in de repository. Elke wijziging wordt daar als versie bewaard — de volledige geschiedenis is terug te vinden in GitHub.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap" class="geen-print">
+            <button class="knop" id="btnExport" type="button">Databestand downloaden</button>
+            <button class="knop tweede" id="btnImport" type="button">Databestand terugzetten</button>
+            <button class="knop tweede" id="btnPrint" type="button">Rapport afdrukken</button>
+          </div>
+          <p class="hint" style="margin-top:10px">Terugzetten overschrijft de gedeelde data voor iedereen — gebruik dit alleen als beheerder, bijvoorbeeld om een back-up te herstellen.</p>
+        </div>
+      </div>
+      <div class="paneel">
+        <header><svg class="ico"><use href="#ico-stoel"/></svg> Deelnemers</header>
+        <div class="inhoud">
+          <p style="margin-bottom:10px">Iedereen die zich één keer aanmeldt, verschijnt hier en is daarna te kiezen als behandelaar.</p>
+          <div id="beheerGebruikers"></div>
+        </div>
+      </div>
+    </div>
+    <div class="paneel">
+      <header><svg class="ico"><use href="#ico-lamp"/></svg> Verbinding</header>
+      <div class="inhoud">
+        <div class="detailraster" id="beheerVerbinding"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap" class="geen-print">
+          <button class="knop tweede" id="btnInstellingen" type="button">Aanmelding wijzigen</button>
+          <button class="knop gevaar" id="btnAfmelden" type="button">Afmelden op dit apparaat</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ DETAIL ============ -->
+<dialog class="detail" id="detail">
+  <div class="kop">
+    <div style="flex:1">
+      <span class="code" id="dId"></span>
+      <h2 id="dTitel" style="margin-top:4px"></h2>
+    </div>
+    <button class="knop stil klein" id="dSluit" type="button" aria-label="Sluiten">✕</button>
+  </div>
+  <div class="body">
+    <div style="display:flex;gap:8px;flex-wrap:wrap" id="dPillen"></div>
+    <div class="detailraster" id="dVelden"></div>
+    <p class="eyebrow">Omschrijving</p>
+    <p id="dOmschrijving" style="margin:4px 0 16px;white-space:pre-wrap"></p>
+    <p class="eyebrow">Reacties</p>
+    <div id="dReacties"></div>
+    <label class="veld geen-print" style="margin-top:10px"><span>Reactie toevoegen</span>
+      <textarea id="dNieuweReactie" style="min-height:60px" placeholder="Wat is er gedaan of gevraagd?"></textarea></label>
+    <button class="knop tweede klein geen-print" id="dReactieOpslaan" type="button">Reactie opslaan</button>
+  </div>
+  <div class="voet geen-print">
+    <label class="veld" style="margin:0;flex:1;min-width:140px"><span>Status wijzigen</span>
+      <select id="dStatus"></select></label>
+    <label class="veld" style="margin:0;flex:1;min-width:140px"><span>Behandelaar</span>
+      <select id="dBehandelaar"></select></label>
+    <button class="knop gevaar klein" id="dVerwijder" type="button" style="align-self:flex-end">Verwijderen</button>
+  </div>
+</dialog>
+
+<!-- ============ AANMELDEN ============ -->
+<dialog class="aanmelden" id="aanmelden">
+  <div class="kop">
+    <div style="flex:1">
+      <span class="eyebrow">Deg Supportdesk</span>
+      <h2>Meld je aan</h2>
+    </div>
+  </div>
+  <div class="body">
+    <p style="margin-bottom:14px">Eén keer aanmelden op dit apparaat. Daarna opent de desk direct met de gedeelde teamdata.</p>
+    <label class="veld" id="vNaam"><span>Je naam</span>
+      <input type="text" id="aNaam" placeholder="Zoals collega's je kennen" autocomplete="name">
+      <span class="fout">Vul je naam in — die komt bij je tickets en reacties te staan.</span></label>
+    <label class="veld" id="vToken"><span>Teamsleutel (GitHub-token)</span>
+      <input type="password" id="aToken" placeholder="github_pat_…" autocomplete="off">
+      <span class="hint">Je krijgt deze sleutel van de beheerder. Hij wordt alleen op dit apparaat bewaard.</span>
+      <span class="fout" id="aTokenFout">Deze sleutel geeft geen toegang tot het databestand. Controleer de sleutel bij de beheerder.</span></label>
+    <details class="klapper">
+      <summary>Geavanceerd: repository-instellingen</summary>
+      <div class="raster k2" style="margin:0">
+        <label class="veld"><span>Eigenaar</span><input type="text" id="aOwner"></label>
+        <label class="veld"><span>Repository</span><input type="text" id="aRepo"></label>
+        <label class="veld"><span>Branch</span><input type="text" id="aBranch" value="main"></label>
+        <label class="veld"><span>Databestand</span><input type="text" id="aPad" value="data/tickets.json"></label>
+      </div>
+    </details>
+  </div>
+  <div class="voet">
+    <button class="knop" id="aStart" type="button" style="flex:1">Aanmelden en openen</button>
+  </div>
+</dialog>
+
+<input type="file" id="importBestand" accept="application/json" hidden>
+<div id="melding" role="status"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
