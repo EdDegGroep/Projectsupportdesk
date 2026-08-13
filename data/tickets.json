@@ -25,9 +25,9 @@
       "prioriteit": "hoog",
       "melder": "Ed",
       "behandelaar": "Ed",
-      "status": "In behandeling",
+      "status": "Wacht op melder",
       "aangemaakt": "2026-08-12T07:18:16.070Z",
-      "bijgewerkt": "2026-08-12T07:18:25.451Z",
+      "bijgewerkt": "2026-08-13T11:38:44.197Z",
       "opgelost": null,
       "reacties": []
     }
@@ -37,5 +37,5 @@
     "Mariën"
   ],
   "verwijderd": [],
-  "bijgewerkt": "2026-08-13T11:38:43.397Z"
+  "bijgewerkt": "2026-08-13T11:38:44.898Z"
 }
