@@ -25,10 +25,10 @@
       "prioriteit": "hoog",
       "melder": "Ed",
       "behandelaar": "Ed",
-      "status": "In behandeling",
+      "status": "Opgelost",
       "aangemaakt": "2026-08-12T07:18:16.070Z",
-      "bijgewerkt": "2026-08-13T11:38:45.055Z",
-      "opgelost": null,
+      "bijgewerkt": "2026-08-13T11:58:26.987Z",
+      "opgelost": "2026-08-13T11:58:26.987Z",
       "reacties": []
     }
   ],
@@ -37,5 +37,5 @@
     "Mariën"
   ],
   "verwijderd": [],
-  "bijgewerkt": "2026-08-13T11:38:46.472Z"
+  "bijgewerkt": "2026-08-13T11:58:27.690Z"
 }
